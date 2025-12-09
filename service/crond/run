@@ -7,8 +7,8 @@ if [[ -n "$LOGROTATE_CRON_SCHEDULE" ]]; then
 	echo "${LOGROTATE_CRON_SCHEDULE} /usr/sbin/logrotate /etc/logrotate.conf" >>/tmp/crontab
 fi
 
-if [[ -n "$POSTQUEUE_CRON_SCHEDULE" && -n "$POSTQUEUE_OUTPUT"]]; then
-	echo "${POSTQUEUE_CRON_SCHEDULE} /usr/sbin/postqueue -p >${POSTQUEUE_OUTPUT}" >>/tmp/crontab
+if [[ -n "$POSTQUEUE_CRON_SCHEDULE" && -n "$POSTQUEUE_OUTPUT" ]]; then
+	echo "${POSTQUEUE_CRON_SCHEDULE} /usr/sbin/postqueue -p | tee /proc/1/fd/1 >${POSTQUEUE_OUTPUT}" >>/tmp/crontab
 fi
 
 if [[ -n "$CRON_EXTRA" ]]; then
