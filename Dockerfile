@@ -1,4 +1,4 @@
-FROM alpine:3
+FROM alpine:3.23.0
 
 RUN apk add --no-cache \
 	bash \
@@ -10,13 +10,16 @@ RUN apk add --no-cache \
 	postfix-pgsql \
 	rsyslog \
 	rsyslog-pgsql \
+	logrotate \
 	runit
 
 COPY service /etc/service
 COPY runit_bootstrap /usr/sbin/runit_bootstrap
 COPY rsyslog.conf /etc/rsyslog.conf
 
-RUN ln -sf /dev/stdout /var/log/mail.log
+VOLUME /etc/logrotate.d
+VOLUME /var/log
+VOLUME /var/spool/postfix
 
 STOPSIGNAL SIGKILL
 

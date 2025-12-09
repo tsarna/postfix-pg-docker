@@ -1,0 +1,28 @@
+#!/bin/bash
+set -e
+
+>/tmp/crontab
+
+if [[ -n "$LOGROTATE_CRON_SCHEDULE" ]]; then
+	echo "${LOGROTATE_CRON_SCHEDULE} /usr/sbin/logrotate /etc/logrotate.conf" >>/tmp/crontab
+fi
+
+if [[ -n "$POSTQUEUE_CRON_SCHEDULE" && -n "$POSTQUEUE_OUTPUT"]]; then
+	echo "${POSTQUEUE_CRON_SCHEDULE} /usr/sbin/postqueue -p >${POSTQUEUE_OUTPUT}" >>/tmp/crontab
+fi
+
+if [[ -n "$CRON_EXTRA" ]]; then
+	echo "${CRON_EXTRA}" >>/tmp/crontab
+fi
+
+if [[ -n "$CRON_EXTRA_FILE" && -s "$CRON_EXTRA_FILE" ]]; then
+	cat ${CRON_EXTRA_FILE} >>/tmp/crontab
+fi
+
+if [[ -s /tmp/crontab ]]; then
+	/usr/bin/crontab /tmp/crontab
+	rm /tmp/crontab
+	exec /usr/sbin/crond
+else
+	exec sleep infinity
+fi

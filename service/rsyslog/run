@@ -1,6 +1,14 @@
 #!/bin/bash
 set -e
 
+if [[ -n "$MAIL_LOG_FILE" ]]; then
+  mkdir -p /etc/rsyslog.d
+  cat >/etc/rsyslog.d/mail_log_file.conf <<EOL
+mail.*                                                  $MAIL_LOG_FILE
+EOL
+fi
+
+
 if [[ -z "$POSTGRES_LOG_TABLE" || -z "$POSTGRES_LOG_HOST" || -z "$POSTGRES_LOG_USER" || -z "$POSTGRES_LOG_PASSWORD" || -z "$POSTGRES_LOG_DB" ]]; then
   echo "Logging to Postgres is disabled"
 else
