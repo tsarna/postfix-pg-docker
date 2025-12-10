@@ -16,6 +16,7 @@ RUN apk add --no-cache \
 COPY service /etc/service
 COPY runit_bootstrap /usr/sbin/runit_bootstrap
 COPY rsyslog.conf /etc/rsyslog.conf
+COPY master.cf /etc/postfix/master.cf
 
 VOLUME /etc/logrotate.d
 VOLUME /var/log
