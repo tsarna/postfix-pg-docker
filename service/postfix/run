@@ -18,7 +18,7 @@ echo "smtputf8_enable = no" >> /etc/postfix/main.cf
 
 # Transform CONF_ env vars into postfix confs
 # E.g. "CONF_MYDOMAIN=example.com" is applied to the main.cf file as as "mydomain=example.com"
-printenv | grep '^CONF_' | sed 's/^CONF_\(.*\)=\(.*\)/\L\1\E=\2/' | tee /var/log/conf | tr '\n' '\0' | xargs -0 '\n' postconf -e
+printenv | grep '^CONF_' | sed 's/^CONF_\(.*\)=\(.*\)/\L\1\E=\2/' | tr '\n' '\0' | tee /var/log/conf | xargs -0 postconf -e
 
 if [[ -n "$MAILNAME" ]]; then
 	echo "$MAILNAME" > /etc/mailname
