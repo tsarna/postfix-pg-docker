@@ -18,8 +18,7 @@ echo "smtputf8_enable = no" >> /etc/postfix/main.cf
 
 # Transform CONF_ env vars into postfix confs
 # E.g. "CONF_MYDOMAIN=example.com" is applied to the main.cf file as as "mydomain=example.com"
-printenv | grep '^CONF_' | sed 's/^CONF_\(.*\)=\(.*\)/\L\1\E=\2/' | tee /var/log/conf | xargs postconf -e
-
+printenv | grep '^CONF_' | sed 's/^CONF_\(.*\)=\(.*\)/\L\1\E=\2/' | tee /var/log/conf | xargs -d '\n' postconf -e
 
 if [[ -n "$MAILNAME" ]]; then
 	echo "$MAILNAME" > /etc/mailname
@@ -89,12 +88,15 @@ if [[ -z "$cmd" ]]; then
 fi
 
 if [[ -n "$POSTCONF_OUTPUT" ]]; then
-        (
-		printenv; echo
-		printenv | grep '^CONF_' | sed 's/^CONF_\(.*\)=\(.*\)/\L\1\E=\2/' ; echo
-		printenv | grep '^CONF_' | sed 's/^CONF_\(.*\)=\(.*\)/\L\1\E=\2/' | xargs echo; echo
-		postconf
-	) >$POSTCONF_OUTPUT
+	date >$POSTCONF_OUTPUT
+	echo >>$POSTCONF_OUTPUT
+	printenv >>$POSTCONF_OUTPUT
+	echo >>$POSTCONF_OUTPUT
+	printenv | grep 'CONF_' | sed 's/^CONF_\(.*\)=\(.*\)/\L\1\E=\2/' >>$POSTCONF_OUTPUT
+	echo >>$POSTCONF_OUTPUT
+	printenv | grep '^CONF_' | sed 's/^CONF_\(.*\)=\(.*\)/\L\1\E=\2/' | xargs -d '\n' echo >>$POSTCONF_OUTPUT
+	echo >>$POSTCONF_OUTPUT
+	postconf >>$POSTCONF_OUTPUT
 fi
 
 "$cmd" -c /etc/postfix -d 2>&1
