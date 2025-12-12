@@ -10,12 +10,12 @@
 #               (yes)   (yes)   (no)    (never) (100)
 # ==========================================================================
 #smtp      inet  n       -       n       -       -       smtpd
-smtp       inet  n       -       y       -       1       postscreen
-smtpd      pass  -       -       y       -       -       smtpd
-dnsblog    unix  -       -       y       -       0       dnsblog
-tlsproxy   unix  -       -       y       -       0       tlsproxy
+smtp       inet  n       -       n       -       1       postscreen
+smtpd      pass  -       -       n       -       -       smtpd
+dnsblog    unix  -       -       n       -       0       dnsblog
+tlsproxy   unix  -       -       n       -       0       tlsproxy
 
-submission inet n       -       y       -       -       smtpd
+submission inet  n       -       n       -       -       smtpd
   -o smtpd_upstream_proxy_protocol=haproxy
   -o smtpd_upstream_proxy_timeout=5s
   -o syslog_name=postfix/submission
@@ -33,7 +33,7 @@ submission inet n       -       y       -       -       smtpd
   -o smtpd_recipient_restrictions=$mua_recipient_restrictions
   -o milter_macro_daemon_name=ORIGINATING
 
-submissions     inet  n       -       y       -       -       smtpd
+submissions     inet  n       -       n       -       -       smtpd
   -o smtpd_upstream_proxy_protocol=haproxy
   -o smtpd_upstream_proxy_timeout=5s
   -o syslog_name=postfix/submissions
