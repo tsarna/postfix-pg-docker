@@ -4,8 +4,6 @@ set -e
 # Avoid  warning: smtputf8_enable is true, but EAI support is not compiled in
 echo "smtputf8_enable = no" >> /etc/postfix/main.cf
 
-
-
 # cat >> /etc/postfix/main.cf << EOF
 # # limit smtp to loopback interface & compute engine doesn't support ipv6
 # inet_interfaces = loopback-only
@@ -49,30 +47,23 @@ if [[ -n "$SASL_AUTH" ]]; then
 	echo "$CONF_RELAYHOST $SASL_AUTH" > /etc/postfix/sasl_passwd
 fi
 
-if [[ -n "$POSTGRES_VALIAS_QUERY" ]]; then
-	cat >> /etc/postfix/pg_virtual_aliases.cf <<- EOF
+mkdir -p /etc/postfix/pgsql
+
+### Postgres Maps ###
+# For each PGQUERY_<NAME>=<sql query> env var, generate /etc/postfix/pgsql/<name>.cf
+while read -r line; do
+	name="${line%%=*}"
+	query="${line#*=}"
+	cfname=$(echo "$name" | sed 's/^PGQUERY_//' | tr '[:upper:]' '[:lower:]')
+	cat > "/etc/postfix/pgsql/${cfname}.cf" <<- EOF
 	hosts = $POSTGRES_HOSTS
 	user = $POSTGRES_USER
 	password = $POSTGRES_PASSWORD
 	dbname = $POSTGRES_ALIAS_DB
-	query = $POSTGRES_VALIAS_QUERY
+	query = $query
 	EOF
-
-	postconf -e virtual_alias_maps=pgsql:/etc/postfix/pg_virtual_aliases.cf
-fi
-
-if [[ -n "$POSTGRES_ALIAS_QUERY" ]]; then
-	cat >> /etc/postfix/pg_aliases.cf <<- EOF
-	hosts = $POSTGRES_HOSTS
-	user = $POSTGRES_USER
-	password = $POSTGRES_PASSWORD
-	dbname = $POSTGRES_ALIAS_DB
-	query = $POSTGRES_ALIAS_QUERY
-	EOF
-
-	postconf -e alias_maps=pgsql:/etc/postfix/pg_aliases.cf
-fi
-
+done < <(printenv | grep '^PGQUERY_')
+### END Postgres Maps ###
 
 if [[ -f "/usr/libexec/postfix/master" ]]; then
 	cmd="/usr/libexec/postfix/master"
