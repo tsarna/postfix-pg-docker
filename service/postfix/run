@@ -87,4 +87,8 @@ if [[ -n "$POSTCONF_OUTPUT" ]]; then
 	postconf >$POSTCONF_OUTPUT
 fi
 
+# Wait for rsyslog to be ready, then log startup
+while [[ ! -S /dev/log ]]; do sleep 0.1; done
+logger -p mail.info "###### Postfix Starting ######"
+
 "$cmd" -c /etc/postfix -d 2>&1
