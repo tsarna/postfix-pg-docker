@@ -78,6 +78,11 @@ if [[ -z "$cmd" ]]; then
 	exit 1
 fi
 
+# In case of wanting to share one mount for both spool and data (by default in /var/lib/postfix)
+mkdir -p /var/spool/postfix/data
+chown postfix:root /var/spool/postfix/data
+chmod 700 /var/spool/postfix/data
+
 if [[ -n "$POSTCONF_OUTPUT" ]]; then
 	postconf >$POSTCONF_OUTPUT
 fi
