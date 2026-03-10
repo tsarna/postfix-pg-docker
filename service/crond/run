@@ -19,8 +19,14 @@ if [[ -n "$CRON_EXTRA_FILE" && -s "$CRON_EXTRA_FILE" ]]; then
 	cat ${CRON_EXTRA_FILE} >>/tmp/crontab
 fi
 
+
 if [[ -s /tmp/crontab ]]; then
 	/usr/bin/crontab /tmp/crontab
+
+	if [[ -n "$CRONTAB_OUTPUT" ]]; then
+		cp /tmp/crontab $CRONTAB_OUTPUT
+        fi
+
 	rm /tmp/crontab
 	exec /usr/sbin/crond
 else
