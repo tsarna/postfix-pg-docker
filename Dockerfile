@@ -6,12 +6,13 @@ RUN apk add --no-cache \
 	libsasl \
 	mailx \
 	sed \
-  postfix \ 
+	postfix \
 	postfix-pgsql \
 	rsyslog \
 	rsyslog-pgsql \
 	logrotate \
-	runit
+	runit \
+	tini
 
 COPY service /etc/service
 COPY runit_bootstrap /usr/sbin/runit_bootstrap
@@ -22,6 +23,6 @@ VOLUME /etc/logrotate.d
 VOLUME /var/log
 VOLUME /var/spool/postfix
 
-STOPSIGNAL SIGKILL
+STOPSIGNAL SIGTERM
 
-ENTRYPOINT ["/usr/sbin/runit_bootstrap"]
+ENTRYPOINT ["/sbin/tini", "--", "/usr/sbin/runit_bootstrap"]
