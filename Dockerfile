@@ -18,6 +18,7 @@ COPY service /etc/service
 COPY runit_bootstrap /usr/sbin/runit_bootstrap
 COPY rsyslog.conf /etc/rsyslog.conf
 COPY master.cf /etc/postfix/master.cf
+COPY logrotate.d /etc/logrotate.d
 
 VOLUME /etc/logrotate.d
 VOLUME /var/log
