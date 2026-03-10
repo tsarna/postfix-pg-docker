@@ -28,7 +28,7 @@ if [[ -s /tmp/crontab ]]; then
         fi
 
 	rm /tmp/crontab
-	exec /usr/sbin/crond
+	exec /usr/sbin/crond -f
 else
 	exec sleep infinity
 fi
