@@ -52,11 +52,11 @@ submissions     inet  n       -       n       -       -       smtpd
 
 2525      inet  n       -       n       -       -       smtpd
   -o syslog_name=postfix/internal
-  -o smtpd_sasl_auth_enable=yes
-  -o smtpd_tls_security_level=may
+  -o smtpd_sasl_auth_enable=no
+  -o smtpd_tls_security_level=none
   -o local_header_rewrite_clients=static:all
-  -o smtpd_relay_restrictions=$mua_relay_restrictions
-  -o smtpd_recipient_restrictions=$mua_recipient_restrictions
+  -o smtpd_relay_restrictions=permit_mynetworks,reject
+  -o smtpd_recipient_restrictions=permit_mynetworks,reject
   -o milter_macro_daemon_name=ORIGINATING
 #628       inet  n       -       n       -       -       qmqpd
 pickup    unix  n       -       n       60      1       pickup
