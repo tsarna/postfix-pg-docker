@@ -1,12 +1,11 @@
 #!/bin/bash
 
-image_name=dhet/postfix-pg
+image_name=ghcr.io/tsarna/postfix-pg
 time_tag=$(date -u -I)
 
-docker login -u "$USER" -p "$PASSWORD"
-
-docker build -t "$image_name:latest" . 
-docker tag "$image_name:latest" "$image_name:$time_tag"
-
-docker push "$image_name:latest"
-docker push "$image_name:$time_tag"
+docker buildx build \
+    --platform linux/amd64,linux/arm64 \
+    --push \
+    -t "$image_name:latest" \
+    -t "$image_name:$time_tag" \
+    .
