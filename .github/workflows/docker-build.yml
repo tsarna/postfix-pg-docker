@@ -5,12 +5,13 @@ on:
     branches:
       - main
       - master
-    tags:
-      - 'v*'
   pull_request:
     branches:
       - main
       - master
+  schedule:
+    # Rebuild weekly to pick up Alpine package updates
+    - cron: "0 6 * * 1"
 
 jobs:
   build:
@@ -22,6 +23,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+
+      - name: Get Postfix and Alpine versions
+        id: versions
+        run: |
+          ALPINE_TAG=$(grep '^FROM alpine:' Dockerfile | sed 's/FROM alpine://')
+          POSTFIX_VERSION=$(docker run --rm alpine:${ALPINE_TAG} sh -c 'apk update -q && apk search -e postfix' | grep '^postfix-[0-9]' | sed 's/postfix-\([0-9.]*\).*/\1/')
+          ALPINE_VERSION=$(docker run --rm alpine:${ALPINE_TAG} cat /etc/alpine-release)
+          echo "Postfix version: ${POSTFIX_VERSION}"
+          echo "Alpine version: ${ALPINE_VERSION}"
+          echo "postfix=${POSTFIX_VERSION}" >> $GITHUB_OUTPUT
+          echo "alpine=${ALPINE_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -37,26 +49,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels)
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository_owner }}/postfix-pg
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=raw,value=latest,enable={{is_default_branch}}
-
       - name: Build and push
         uses: docker/build-push-action@v7
         with:
           context: .
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/postfix-pg:latest
+            ghcr.io/${{ github.repository_owner }}/postfix-pg:postfix${{ steps.versions.outputs.postfix }}-alpine${{ steps.versions.outputs.alpine }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
